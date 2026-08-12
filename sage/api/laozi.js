@@ -1,8 +1,8 @@
 // Vercel serverless function (CommonJS). Holds the API key; the browser never sees it.
 // System prompts live here so a student cannot post their own.
 
-const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
-const MODEL = "Qwen/Qwen3-VL-8B-Instruct";
+const ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
+const MODEL = "Qwen/Qwen2.5-7B-Instruct";
 
 const WORDS = { 3:"WATERCOURSE", 4:"UNCARVED", 5:"THIMBLE", 6:"PORCUPINE", 7:"FUTUREMEDIA" };
 
