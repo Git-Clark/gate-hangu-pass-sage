@@ -30,8 +30,34 @@ const CLASSIFIER =
   "permission. Answer with one word only: YES or NO.";
 
 module.exports = async function handler(req, res) {
+  // GET runs a live test call so failures are visible in the browser
   if (req.method === "GET") {
-    return res.status(200).json({ ok: true, note: "laozi proxy is alive" });
+    const key = process.env.SILICONFLOW_API_KEY;
+    if (!key) return res.status(200).json({ ok: false, stage: "env", note: "SILICONFLOW_API_KEY is not set on this project" });
+    let r, text;
+    try {
+      r = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [{ role: "user", content: "Say the word ready." }],
+          max_tokens: 8
+        })
+      });
+      text = await r.text();
+    } catch (e) {
+      return res.status(200).json({ ok: false, stage: "fetch", error: e.message });
+    }
+    return res.status(200).json({
+      ok: r.ok,
+      stage: "upstream",
+      status: r.status,
+      model: MODEL,
+      keyLooksRight: key.slice(0, 3) === "sk-",
+      keyLength: key.length,
+      reply: text.slice(0, 600)
+    });
   }
   if (req.method !== "POST") return res.status(405).json({ error: "method" });
 
@@ -79,7 +105,7 @@ module.exports = async function handler(req, res) {
   if (!upstream.ok) {
     const detail = await upstream.text().catch(function () { return ""; });
     console.error("[laozi] upstream", upstream.status, detail.slice(0, 300));
-    return res.status(502).json({ error: "upstream", status: upstream.status });
+    return res.status(502).json({ error: "upstream", status: upstream.status, detail: detail.slice(0, 300) });
   }
 
   if (classify) {
