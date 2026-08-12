@@ -56,7 +56,6 @@ function buildBody(model, msgs, temp, maxTok) {
     // Qwen3 and other hybrid models reason before answering unless told not to.
     // Laozi speaks in four short sentences; thinking is pure latency here.
     enable_thinking: false,
-    thinking_budget: 0,
     chat_template_kwargs: { enable_thinking: false }
   };
 }
