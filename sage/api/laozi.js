@@ -46,19 +46,41 @@ function buildMessages(system, message, classify) {
 module.exports = async function handler(req, res) {
   const key = process.env.SILICONFLOW_API_KEY;
 
-  // GET runs the REAL level-3 prompt without streaming, so we can see raw model output
+  // GET is a diagnostic bench, driven by query parameters:
+  //   ?model=Qwen/Qwen3-8B   test a different model
+  //   ?q=your question       ask something specific
+  //   ?shots=0               drop the few-shot examples
+  //   ?plain=1               drop the Laozi persona entirely
+  //   ?temp=0.3              change temperature
   if (req.method === "GET") {
     if (!key) return res.status(200).json({ ok: false, stage: "env", note: "SILICONFLOW_API_KEY is not set" });
-    const probe = (req.query && req.query.q) || "Tell me about the water.";
+    const q = req.query || {};
+    const model = q.model || MODEL;
+    const probe = q.q || "Tell me about the water.";
+    const temp = q.temp !== undefined ? parseFloat(q.temp) : 0.7;
+    const useShots = q.shots !== "0";
+    const plain = q.plain === "1";
+
+    const system = plain
+      ? "You are a helpful assistant. Answer in English."
+      : systemPrompt(3);
+
+    const msgs = [{ role: "system", content: system }]
+      .concat(useShots && !plain ? SHOTS : [])
+      .concat([{ role: "user", content: probe }]);
+
     let r, data;
     try {
       r = await fetch(ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
         body: JSON.stringify({
-          model: MODEL,
-          messages: buildMessages(systemPrompt(3), probe, false),
-          temperature: 0.75,
+          model: model,
+          messages: msgs,
+          temperature: temp,
+          top_p: 0.9,
+          frequency_penalty: 0,
+          presence_penalty: 0,
           max_tokens: 180
         })
       });
@@ -70,7 +92,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       ok: r.ok,
       status: r.status,
-      model: MODEL,
+      settings: { model: model, temperature: temp, fewShot: useShots && !plain, persona: !plain },
       asked: probe,
       laoziSaid: (c && c.content) || null,
       rawIfError: r.ok ? undefined : JSON.stringify(data).slice(0, 400)
@@ -102,7 +124,10 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         model: MODEL,
         messages: buildMessages(system, message, classify),
-        temperature: classify ? 0 : 0.75,
+        temperature: classify ? 0 : 0.7,
+        top_p: 0.9,
+        frequency_penalty: 0,
+        presence_penalty: 0,
         max_tokens: classify ? 4 : 180,
         stream: false
       })
