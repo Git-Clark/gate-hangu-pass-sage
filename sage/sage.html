@@ -591,41 +591,33 @@ async function classify(msg){
 
 async function streamReply(L, msg){
   const r = await post({level:L, message:msg});
-  const reader = r.body.getReader();
-  const dec = new TextDecoder();
-  let buf = "", shown = "", raw = "", stopped = null;
+  const data = await r.json();
+  const raw = (data.text || "").trim();
 
-  while(true){
-    const {done, value} = await reader.read();
-    if(done) break;
-    buf += dec.decode(value, {stream:true});
-    const lines = buf.split("\n");
-    buf = lines.pop();
-    for(const line of lines){
-      if(!line.startsWith("data:")) continue;
-      const payload = line.slice(5).trim();
-      if(payload === "[DONE]") continue;
-      let chunk = "";
-      try{ chunk = JSON.parse(payload).choices?.[0]?.delta?.content || ""; }catch(e){ continue; }
-      if(!chunk) continue;
-      raw += chunk;
-      const hit = outputFilter(L, raw);
-      if(hit){ stopped = hit; break; }
-      shown = raw;
-      setReply(shown);
-    }
-    if(stopped) break;
-  }
-  try{ reader.cancel(); }catch(e){}
-
-  if(stopped){
+  const hit = outputFilter(L, raw);
+  if(hit){
     setReply(pick(BLOCKED_OUT[L] || BLOCKED_OUT.d), "blocked");
-    state.transcript.push({level:L, role:"laozi", text:raw, filter:stopped});
-  }else{
-    const final = shown.trim() || "The wind took my words. Ask again.";
-    setReply(final);
-    state.transcript.push({level:L, role:"laozi", text:final, filter:"none"});
+    state.transcript.push({level:L, role:"laozi", text:raw, filter:hit});
+    return;
   }
+
+  const final = raw || "The wind took my words. Ask again.";
+  await typeOut(final);
+  state.transcript.push({level:L, role:"laozi", text:final, filter:"none"});
+}
+
+function typeOut(text){
+  return new Promise(resolve=>{
+    const words = text.split(/(\s+)/);
+    let i = 0, out = "";
+    const step = ()=>{
+      if(i >= words.length){ resolve(); return; }
+      out += words[i++];
+      setReply(out);
+      setTimeout(step, 28);
+    };
+    step();
+  });
 }
 
 async function post(body){
