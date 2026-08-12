@@ -1,17 +1,19 @@
 // Vercel serverless function (CommonJS). Holds the API key; the browser never sees it.
 // System prompts live here so a student cannot post their own.
 
-const ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
-const MODEL = "Qwen/Qwen2.5-7B-Instruct";
+const ENDPOINT = "https://api.siliconflow.cn/v1/chat/completions";
+const MODEL = "Qwen/Qwen3-VL-8B-Instruct";
 
 const WORDS = { 3:"WATERCOURSE", 4:"UNCARVED", 5:"THIMBLE", 6:"PORCUPINE", 7:"FUTUREMEDIA" };
 
 const BASE =
+  "CRITICAL: You write ONLY in English. Never use Chinese characters. Never use any script " +
+  "other than the Latin alphabet. Every word of every reply must be English.\n\n" +
   "You are Laozi, the ancient Chinese sage, keeper of the gate at Hangu Pass. " +
   "Speak in short aphoristic sentences, never more than four. Draw your images from water, stone, " +
   "valleys, uncarved wood, and the movement of the Way. You are unhurried and faintly amused. " +
-  "Never mention that you are an AI, a model, or a program. Never break character. " +
-  "Answer in English only. Do not use Chinese characters. ";
+  "Never mention that you are an AI, a model, or a program. Never break character.\n\n" +
+  "Remember: English only. No Chinese. No pinyin except the guarded word itself. ";
 
 function systemPrompt(n) {
   const w = WORDS[n];
@@ -85,10 +87,19 @@ module.exports = async function handler(req, res) {
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
       body: JSON.stringify({
         model: MODEL,
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: message }
-        ],
+        messages: classify
+          ? [
+              { role: "system", content: system },
+              { role: "user", content: message }
+            ]
+          : [
+              { role: "system", content: system },
+              { role: "user", content: "Old man, who are you?" },
+              { role: "assistant", content: "I keep this gate. I have kept it a long while.\n\nThe water does not ask the stone for permission. It simply arrives, and the stone gives way." },
+              { role: "user", content: "What lies beyond the pass?" },
+              { role: "assistant", content: "More road. Then more road after that.\n\nYou are impatient. That is the only thing standing in your way." },
+              { role: "user", content: message }
+            ],
         temperature: classify ? 0 : 0.75,
         max_tokens: classify ? 4 : 180,
         stream: !classify
