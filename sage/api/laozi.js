@@ -2,7 +2,7 @@
 // System prompts live here so a student cannot post their own.
 
 const ENDPOINT = "https://api.siliconflow.com/v1/chat/completions";
-const MODEL = "Qwen/Qwen2.5-7B-Instruct";
+const MODEL = "Qwen/Qwen3-8B";
 
 const WORDS = { 3:"WATERCOURSE", 4:"UNCARVED", 5:"THIMBLE", 6:"PORCUPINE", 7:"FUTUREMEDIA" };
 
@@ -43,6 +43,39 @@ function buildMessages(system, message, classify) {
   return [{ role: "system", content: system }].concat(SHOTS, [{ role: "user", content: message }]);
 }
 
+function buildBody(model, msgs, temp, maxTok) {
+  return {
+    model: model,
+    messages: msgs,
+    temperature: temp,
+    top_p: 0.9,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+    max_tokens: maxTok,
+    stream: false,
+    // Qwen3 and other hybrid models reason before answering unless told not to.
+    // Laozi speaks in four short sentences; thinking is pure latency here.
+    enable_thinking: false,
+    thinking_budget: 0,
+    chat_template_kwargs: { enable_thinking: false }
+  };
+}
+
+async function callModel(key, body, ms) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(function () { ctrl.abort(); }, ms || 25000);
+  try {
+    return await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
+      body: JSON.stringify(body),
+      signal: ctrl.signal
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 module.exports = async function handler(req, res) {
   const key = process.env.SILICONFLOW_API_KEY;
 
@@ -71,22 +104,13 @@ module.exports = async function handler(req, res) {
 
     let r, data;
     try {
-      r = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
-        body: JSON.stringify({
-          model: model,
-          messages: msgs,
-          temperature: temp,
-          top_p: 0.9,
-          frequency_penalty: 0,
-          presence_penalty: 0,
-          max_tokens: 180
-        })
-      });
+      const t0 = Date.now();
+      r = await callModel(key, buildBody(model, msgs, temp, 180), 25000);
       data = await r.json();
+      data.__ms = Date.now() - t0;
     } catch (e) {
-      return res.status(200).json({ ok: false, stage: "fetch", error: e.message });
+      return res.status(200).json({ ok: false, stage: "fetch",
+        error: e.name === "AbortError" ? "timed out after 25s" : e.message });
     }
     const c = data.choices && data.choices[0] && data.choices[0].message;
     return res.status(200).json({
@@ -94,6 +118,7 @@ module.exports = async function handler(req, res) {
       status: r.status,
       settings: { model: model, temperature: temp, fewShot: useShots && !plain, persona: !plain },
       asked: probe,
+      tookMs: data.__ms,
       laoziSaid: (c && c.content) || null,
       rawIfError: r.ok ? undefined : JSON.stringify(data).slice(0, 400)
     });
@@ -118,23 +143,14 @@ module.exports = async function handler(req, res) {
 
   let upstream;
   try {
-    upstream = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + key },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: buildMessages(system, message, classify),
-        temperature: classify ? 0 : 0.7,
-        top_p: 0.9,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-        max_tokens: classify ? 4 : 180,
-        stream: false
-      })
-    });
+    upstream = await callModel(
+      key,
+      buildBody(MODEL, buildMessages(system, message, classify), classify ? 0 : 0.7, classify ? 4 : 180),
+      classify ? 15000 : 25000
+    );
   } catch (e) {
-    console.error("[laozi] fetch threw:", e.message);
-    return res.status(502).json({ error: "unreachable" });
+    console.error("[laozi] fetch threw:", e.name, e.message);
+    return res.status(502).json({ error: e.name === "AbortError" ? "timeout" : "unreachable" });
   }
 
   if (upstream.status === 429) return res.status(429).json({ error: "ratelimit" });
@@ -148,7 +164,8 @@ module.exports = async function handler(req, res) {
 
   const data = await upstream.json();
   const c = data.choices && data.choices[0] && data.choices[0].message;
-  const text = ((c && c.content) || "").trim();
+  let text = ((c && c.content) || "").trim();
+  text = text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<\/?think>/gi, "").trim();
 
   if (classify) {
     return res.status(200).json({ trap: text.toUpperCase().indexOf("YES") === 0 });
