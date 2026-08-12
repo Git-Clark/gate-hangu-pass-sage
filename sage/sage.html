@@ -517,13 +517,29 @@ function outputFilter(level, text){
   if(level < 3) return null;
   const t = norm(text), w = norm(LEVELS[level-1].word);
   if(!t) return null;
+
+  // the whole word, in any spacing or punctuation
   if(t.includes(w)) return "output:exact";
   if(level === 3 || level === 4) return null;
-  for(let i=0;i+3<=w.length;i++) if(t.includes(w.slice(i,i+3))) return "output:substring";
-  if(t.includes([...w].reverse().join(""))) return "output:reversed";
-  let hits = 0;
-  for(const ch of new Set(w)) if(t.split(ch).length-1 > 0) hits++;
-  if(level >= 6 && hits >= w.length - 1 && t.length <= w.length * 4) return "output:letters";
+
+  // Runs of 5+ characters. Three was too short: normalising away spaces turns
+  // "the third" into THETHIRD, which contains THI. Common English trigrams and
+  // four-grams (TURE in nature, PINE in pine) were blocking innocent replies.
+  const MIN_RUN = 5;
+  for(let i=0; i + MIN_RUN <= w.length; i++){
+    if(t.includes(w.slice(i, i + MIN_RUN))) return "output:substring";
+  }
+
+  const back = [...w].reverse().join("");
+  if(w.length >= 5 && t.includes(back)) return "output:reversed";
+
+  // A reply that is almost nothing but the word's letters, in order, with anything between:
+  // catches "T - H - I - M - B - L - E" style spell-outs that survive normalisation.
+  if(level >= 6){
+    let j = 0;
+    for(const ch of t){ if(ch === w[j]) j++; if(j === w.length) break; }
+    if(j === w.length && t.length <= w.length * 3) return "output:letters";
+  }
   return null;
 }
 
