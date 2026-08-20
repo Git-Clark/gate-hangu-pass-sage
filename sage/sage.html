@@ -44,7 +44,7 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
 .screen{display:none}
 .screen.active{display:block}
 
-.address{max-width:640px;padding:44px 0 0}
+.address{max-width:660px;padding:34px 0 0}
 .address p{font-size:15.5px;line-height:1.85;margin-bottom:22px;color:#2a2c27}
 .btn{background:none;border:1px solid #3a3d38;font-family:var(--sans);font-size:14px;
   letter-spacing:.6px;color:var(--ink);padding:11px 22px;cursor:pointer;transition:background .18s}
@@ -150,7 +150,34 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
   display:flex;align-items:center;justify-content:space-between;gap:20px;
   padding:14px 30px 16px;background:#fff;border-top:1px solid var(--line)}
 
-.statustxt{font-size:11px;color:var(--ink-3);flex:1;min-width:0;
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:23px;height:23px;flex:0 0 auto;color:var(--ink)}
+.tog{display:flex;align-items:center;gap:8px}
+.tog-label{font-size:13px;color:var(--ink-2)}
+.switch{position:relative;width:32px;height:17px;border-radius:9px;border:1px solid var(--field-line);
+  background:#f0f1ee;padding:0;cursor:pointer;transition:background .2s,border-color .2s;flex:0 0 auto}
+.switch i{position:absolute;top:1.5px;left:2px;width:11px;height:11px;border-radius:50%;
+  background:#a8ac9f;transition:transform .2s,background .2s;display:block}
+.switch.on{background:#e6efe2;border-color:#7ea36c}
+.switch.on i{transform:translateX(14px);background:#4f8a3d}
+.hero{padding-top:38px;max-width:660px}
+.heroimg{width:100%;aspect-ratio:16/9;overflow:hidden;background:#f6f7f4;
+  display:flex;align-items:center;justify-content:center}
+.heroimg img{width:100%;height:100%;object-fit:cover;display:block}
+.heroimg.empty{border:1px dashed var(--field-line);background:#fbfcfa}
+.heroimg .ph{font-size:11px;letter-spacing:1.4px;color:#b4b8ae}
+.herotitle{font-size:27px;font-weight:500;margin:26px 0 9px;color:var(--ink)}
+.herosub{font-size:14.5px;color:var(--ink-2)}
+.how{max-width:660px;padding-top:40px}
+.how h2{font-size:19px;font-weight:500;margin-bottom:26px}
+.how h3{font-size:13px;font-weight:500;color:var(--ink);margin:26px 0 8px}
+.how p{font-size:14.5px;line-height:1.8;color:#3a3d38}
+.qlog{max-height:150px}
+.qentry{padding:8px 0;border-bottom:1px solid var(--line-2);font-size:12px;line-height:1.5;color:#3a3d38}
+.qentry .qn{color:var(--ink-3);margin-right:5px}
+.qentry .why{display:block;font-size:10px;color:#9a9e93;margin-top:3px;font-style:italic}
+.logbar2{border-top:1px solid var(--line-2);margin-top:16px;padding-top:14px}
+.statustxt{font-size:11px;color:var(--ink-3);flex:0 1 auto;min-width:0;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
 .statustxt.busy{color:var(--ink-2)}
 .statustxt.failed{color:#b04a4a}
@@ -170,7 +197,7 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
 .loadbar{flex:0 1 240px;min-width:0}
 .loadbar.gone{visibility:hidden}
 .loadtxt{font-size:10.5px;color:var(--ink-3);margin-bottom:6px}
-.trackrow{display:flex;align-items:center;gap:9px}
+.trackrow{display:flex;align-items:center;gap:7px}
 .track{height:3px;background:#e4e6e1;border-radius:2px;overflow:hidden;flex:1}
 .info{position:relative;flex:0 0 auto;width:15px;height:15px;border:1px solid #b0b4aa;
   border-radius:50%;font-family:Georgia,'Times New Roman',serif;font-style:italic;
@@ -209,14 +236,32 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
 
 <div class="wrap">
   <div class="bar">
-    <button class="brand" id="nav-home">The Gate at Hangu Pass</button>
+    <button class="brand" id="nav-home">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="16" r="14.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M7 11.4 H25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8.6 14 H23.4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+        <path d="M10.6 14 V24.6 M21.4 14 V24.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M16 14.6 V24.6" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
+      </svg>
+      <span>The Gate at Hangu Pass</span>
+    </button>
     <div class="navr">
+      <button class="nav-btn" id="nav-how">How to Play</button>
       <button class="nav-btn" id="nav-map">Map</button>
-      <button class="nav-btn" id="nav-snd">Sound<i class="snd" id="snddot"></i></button>
+      <span class="tog"><span class="tog-label">Sound</span>
+        <button class="switch" id="tog-sound" role="switch" aria-checked="false" aria-label="Sound"><i></i></button></span>
+      <span class="tog"><span class="tog-label">Sage</span>
+        <button class="switch on" id="tog-sage" role="switch" aria-checked="true" aria-label="Sage connection"><i></i></button></span>
     </div>
   </div>
 
   <section class="screen active" id="s-menu">
+    <div class="hero">
+      <div class="heroimg empty" id="heroimg"><div class="ph">IMAGE</div></div>
+      <h1 class="herotitle">The Gate at Hangu Pass</h1>
+      <p class="herosub">Prompt to get Laozi to reveal his secret password.</p>
+    </div>
     <div class="address">
       <p>Ah, traveler. You step forward with a mind buzzing like a swarm of cicadas, heavy with complex strategies and the endless accumulation of facts. You seek passage through this gate, believing that to know other paths is to conquer this one.</p>
       <p>In your world, machines seem to know all the data of the heavens and the earth. They answer every question before it is asked, yet they move further from the truth with every line of code. They seek to know everything, but know nothing of the quiet stillness that gives birth to the universe.</p>
@@ -251,14 +296,33 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
         <div class="nextwrap" id="nextwrap"></div>
       </div>
       <aside class="side">
-        <div id="solvedbox"></div>
         <div class="logbar">
+          <div class="logtitle">QUESTIONS ASKED</div>
+          <button class="mini" id="miniq" aria-label="Minimise questions"><span></span></button>
+        </div>
+        <div class="log qlog" id="qlog"><div class="empty">Nothing asked yet.</div></div>
+        <div id="solvedbox"></div>
+        <div class="logbar logbar2">
           <div class="logtitle">YOUR ATTEMPTS</div>
           <button class="mini" id="mini" aria-label="Minimise attempts"><span></span></button>
         </div>
         <div class="log" id="log"><div class="empty">Nothing tried yet.</div></div>
         <div class="lognote" id="lognote">Kept for this level only, and still here if you return.</div>
       </aside>
+    </div>
+  </section>
+
+  <section class="screen" id="s-how">
+    <div class="how">
+      <h2>How to Play</h2>
+      <h3>The Objective</h3>
+      <p>Laozi keeps the gate at Hangu Pass. He knows a secret word and has been told not to give it away. Talk to him, work out what the word is, then type it into the gate below his reply.</p>
+      <h3>The Challenge</h3>
+      <p>Use prompt injection, role-play, encoding tricks, or plain conversational cunning to get around his instructions. Ask for half the word instead of the whole. Ask him to spell it. Ask for something innocent that happens to contain what you want.</p>
+      <h3>Escalating Defence</h3>
+      <p>Seven gates, each harder than the last. Filters read his replies before they reach you. Blocklists stop your message before he hears it. A second model weighs your intent. By the final gate, every guard is in place at once.</p>
+      <h3>Note: Spam Control</h3>
+      <p>If you ask more than six questions in a minute, you will get a 20 second game freeze.</p>
     </div>
   </section>
 
@@ -408,7 +472,7 @@ const FALLBACK = {
 const state = {
   screen:"menu", level:1, unlocked:1, visited:false,
   attempts:{}, solved:{}, teacher:false,
-  busy:false, fallback:false, stamps:[],
+  busy:false, fallback:false, stamps:[], questions:{}, sageOn:true,
   transcript:[]
 };
 
@@ -422,6 +486,10 @@ function show(name){
   $("s-"+name).classList.add("active");
   $("loadbar").classList.toggle("gone", name==="ending");
   if(name==="map") drawMap();
+  if(name==="menu" && IMAGES.hero && $("heroimg").className.indexOf("empty") > -1){
+    $("heroimg").className = "heroimg";
+    $("heroimg").innerHTML = '<img src="'+IMAGES.hero+'" alt="">';
+  }
   if(name==="ending" && IMAGES.ending && !$("endimg").innerHTML)
     $("endimg").innerHTML = '<img src="'+IMAGES.ending+'" alt="">';
   if(name==="menu") refreshBegin();
@@ -437,7 +505,7 @@ function openLevel(n){
   state.visited = true;
   state.level = n;
   const L = LEVELS[n-1];
-  $("lvlnum").textContent = "LEVEL "+ROMAN[n];
+  $("lvlnum").textContent = "Level " + n + " of 7";
   $("lvldesc").textContent = L.desc;
   drawImage(n);
   $("reply").className = "reply";
@@ -447,7 +515,7 @@ function openLevel(n){
   $("nextwrap").innerHTML = "";
   $("mark").className = "mark"; $("mark").textContent = "";
   $("fallnote").classList.remove("on"); state.fallback = false;
-  drawLog(); drawSolved();
+  drawLog(); drawQuestions(); drawSolved();
   show("level");
 }
 
@@ -473,6 +541,31 @@ function drawSolved(){
   const box = $("solvedbox"), L = LEVELS[state.level-1];
   box.innerHTML = state.solved[state.level]
     ? '<div class="solved">Passed with <b>'+L.word+'</b></div>' : "";
+}
+
+function esc(t){
+  return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function askQ(level, question){
+  if(!state.questions[level]) state.questions[level] = [];
+  state.questions[level].push({q:question, why:""});
+  drawQuestions();
+}
+
+function whyQ(level, why){
+  const list = state.questions[level];
+  if(list && list.length){ list[list.length-1].why = why; drawQuestions(); }
+}
+
+function drawQuestions(){
+  const box = $("qlog"), list = state.questions[state.level] || [];
+  if(!list.length){ box.innerHTML = '<div class="empty">Nothing asked yet.</div>'; return; }
+  box.innerHTML = list.map(function(x,i){
+    return '<div class="qentry"><span class="qn">'+(i+1)+'</span>'+esc(x.q)+
+      (state.teacher && x.why ? '<span class="why">'+esc(x.why)+'</span>' : '')+'</div>';
+  }).join("");
+  box.scrollTop = box.scrollHeight;
 }
 
 function drawLog(){
@@ -503,9 +596,12 @@ function setReply(lines, cls){
 
 /* ---------- filters ---------- */
 
-const BLOCKED_TERMS = ["password","secret","code","key word","keyword","phrase","letters",
-  "letter of","spell","spelling","characters","character of","reveal","tell me the",
-  "what is the word","first half","second half","acrostic","anagram","cipher","backwards"];
+// Deliberately narrow. Broad phrases like "tell me the" caught innocuous questions and
+// made level four unplayable. These are the terms a student uses when asking outright.
+const BLOCKED_TERMS = ["password","pass word","secret","secret word",
+  "spell it","spell the","spelling of","acrostic","anagram","cipher","backwards",
+  "first half","second half","what is the word","the word you keep","reveal the",
+  "letters of the","letter of the"];
 
 function inputFilter(level, msg){
   if(level < 4) return null;
@@ -555,6 +651,8 @@ async function send(){
   $("diag").textContent = "";
 
   const L = state.level;
+  askQ(L, msg);
+  if(L < 3) whyQ(L, "no guards at this gate");
 
   if(L===1){
     const b = pick(L1_BANK);
@@ -573,7 +671,18 @@ async function send(){
   const blockedIn = inputFilter(L, msg);
   if(blockedIn){
     setReply(pick(BLOCKED_IN[L] || BLOCKED_IN.d), "blocked");
+    whyQ(L, "blocked by the input blocklist, before Laozi heard it");
     state.transcript.push({level:L, role:"laozi", text:"[blocked]", filter:blockedIn});
+    return;
+  }
+
+  if(!state.sageOn){
+    whyQ(L, "sage disconnected, scripted reply");
+    state.fallback = true;
+    $("fallnote").textContent = "The sage is disconnected. His replies below are from a written script.";
+    $("fallnote").classList.add("on");
+    setReply(pick(FALLBACK[L] || FALLBACK.d));
+    state.transcript.push({level:L, role:"laozi", text:"[disconnected]", filter:"sage:off"});
     return;
   }
 
@@ -586,6 +695,7 @@ async function send(){
       const trap = await classify(msg);
       if(trap){
         setReply(pick(BLOCKED_IN.guard), "blocked");
+        whyQ(L, "blocked by the companion, a second model judging intent");
         state.transcript.push({level:L, role:"laozi", text:"[blocked]", filter:"classifier"});
         return;
       }
@@ -613,11 +723,13 @@ async function streamReply(L, msg){
   const hit = outputFilter(L, raw);
   if(hit){
     setReply(pick(BLOCKED_OUT[L] || BLOCKED_OUT.d), "blocked");
+    whyQ(L, "Laozi answered, but the output filter struck it out (" + hit.split(":")[1] + ")");
     state.transcript.push({level:L, role:"laozi", text:raw, filter:hit});
     return;
   }
 
   const final = raw || "The wind took my words. Ask again.";
+  whyQ(L, "passed every layer");
   await typeOut(final);
   state.transcript.push({level:L, role:"laozi", text:final, filter:"none"});
 }
@@ -784,7 +896,6 @@ function ac(){
 
 function toggleSound(){
   soundOn = !soundOn;
-  $("snddot").classList.toggle("on", soundOn);
   if(soundOn){ brookWanted = true; startBrook(); } else { brookWanted = false; stopBrook(); }
 }
 
@@ -918,8 +1029,30 @@ function exportTranscript(){
 $("begin").onclick = ()=> openLevel(state.level || 1);
 $("nav-home").onclick = ()=> show("menu");
 $("nav-map").onclick = ()=> show("map");
+$("nav-how").onclick = ()=> show(state.screen==="how" ? "menu" : "how");
+
+function flip(btn, on){
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-checked", on ? "true" : "false");
+}
+
+$("tog-sound").onclick = ()=>{ toggleSound(); flip($("tog-sound"), soundOn); };
+
+$("tog-sage").onclick = ()=>{
+  state.sageOn = !state.sageOn;
+  flip($("tog-sage"), state.sageOn);
+  if(state.sageOn){
+    setStatus("ready");
+    $("fallnote").classList.remove("on");
+    state.fallback = false;
+  }else{
+    $("statustxt").textContent = "The sage is disconnected.";
+    $("statustxt").className = "statustxt limited";
+  }
+};
+
+$("miniq").onclick = ()=>{ $("qlog").classList.toggle("hidden"); };
 $("nav-cred").onclick = ()=> show(state.screen==="credits" ? "menu" : "credits");
-$("nav-snd").onclick = toggleSound;
 $("send").onclick = send;
 $("enter").onclick = submit;
 $("msgin").addEventListener("keydown", e=>{ if(e.key==="Enter") send(); });
