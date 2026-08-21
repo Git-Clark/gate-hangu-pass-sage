@@ -6,14 +6,22 @@
 <title>The Gate at Hangu Pass</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Loaded without blocking the first paint. A plain stylesheet link stops the browser
+     painting anything until Google answers, which on a slow or filtered network can be
+     seconds. media="print" makes it a low-priority fetch; onload promotes it. The page
+     draws immediately in the system font and swaps to Inter when it arrives. If Google
+     is unreachable the game simply keeps the system font and nothing is lost. -->
+<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap">
+<noscript><link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap"></noscript>
 <style>
 :root{
   --ink:#22241f; --ink-2:#4a4d47; --ink-3:#7c8078;
   --line:#dcded9; --line-2:#eef0eb;
   --field:#fafaf8; --field-line:#c9ccc5;
   --warn:#9a7d0a; --wrong:#9c6a6a; --right:#5f7a52;
-  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  --sans:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','Helvetica Neue',Arial,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
