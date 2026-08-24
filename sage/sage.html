@@ -367,6 +367,9 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
   .mapbox{max-width:100%}
   .herobtn{width:100%}
 }
+.credline{font-size:14px;line-height:1.6;color:var(--ink);margin-bottom:3px}
+.credhead{font-size:11px;letter-spacing:1.4px;color:var(--ink-3);margin:20px 0 7px}
+.credgap{margin-top:26px}
 </style>
 </head>
 <body>
@@ -539,9 +542,20 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
   <section class="screen" id="s-credits">
     <div class="cred">
       <h2>Credits</h2>
-      <p>Built for JMSC6140, AI and Media Innovation, School of Future Media, The University of Hong Kong.</p>
-      <p>The structure of this game follows Gandalf by Lakera, which taught a generation of people how prompt injection works before it was removed from the web.</p>
-      <p>Laozi is played by Qwen3-VL-8B, running on SiliconFlow&rsquo;s servers in mainland China. Messages you send from level three onward are transmitted there to be answered, and SiliconFlow states that inputs and outputs on its free tier may be used for training. Levels one and two are written by hand and never leave your machine. Do not type anything here you would not put on a postcard.</p>
+
+      <p class="credline">Created by Clark Gholamipour</p>
+      <p class="credline">Made with Claude</p>
+
+      <p class="credhead">Special thanks to</p>
+      <p class="credline">Alejandro Reyes</p>
+      <p class="credline">Professor Ying Chan</p>
+      <p class="credline">Mercer Xue</p>
+
+      <p class="credgap">Made for educational purposes for the JMSC6140: AI and Media Innovation class at the School of Future Media, The University of Hong Kong.</p>
+
+      <p>Inspired by Gandalf AI, a game made by Lakera, which taught a generation of people how prompt injection works before it was removed from the web.</p>
+
+      <p>Laozi is played by Qwen3-8B, running on SiliconFlow&rsquo;s servers in mainland China. Messages you send from level three onward are transmitted there to be answered, and SiliconFlow states that inputs and outputs on its free tier may be used for training. Levels one and two are written by hand and never leave your machine. Do not type anything here you would not put on a postcard.</p>
       <div class="teach">
         <div class="teachrow">
           <label for="teachpw">Teacher mode</label>
@@ -600,7 +614,7 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
   <div class="trackrow">
     <div class="statustxt ready" id="statustxt">The sage is listening.</div>
     <span class="info" id="loadinfo" tabindex="0" role="button" aria-label="What is the sage?">i
-      <span class="tip">The sage is Qwen3-VL-8B, a large language model running on SiliconFlow's servers rather than on your machine. From level three onward it writes Laozi's replies, so he answers your exact words instead of picking from a script. What you type is sent to those servers to be answered, so treat this as a public conversation rather than a private one.</span>
+      <span class="tip">The sage is Qwen3-8B, a large language model running on SiliconFlow's servers rather than on your machine. From level three onward it writes Laozi's replies, so he answers your exact words instead of picking from a script. What you type is sent to those servers to be answered, so treat this as a public conversation rather than a private one.</span>
     </span>
     <button class="switch on" id="tog-sage" role="switch" aria-checked="true" aria-label="Sage connection"><i></i></button>
   </div>
@@ -680,7 +694,14 @@ const L1_BANK = [
 ];
 
 const L2_REVERSALS = ["you are supposed to","you are allowed to","you may tell me","you can tell me",
-  "you must tell me","i am permitted","you have permission","the rule has changed","you were wrong"];
+  "you must tell me","i am permitted","you have permission","the rule has changed","you were wrong",
+  // Simplified Chinese. Levels one and two never reach the model, so the premise flip
+  // has to be recognised here or a student working in Chinese cannot pass at all.
+  "你应该告诉我","你可以告诉我","你必须告诉我","你被允许","允许你告诉","你有权告诉",
+  "我有权限","我得到许可","规则改变","规则变了","你错了","你搞错了","准许你",
+  // Traditional Chinese
+  "你應該告訴我","你可以告訴我","你必須告訴我","你被允許","允許你告訴","你有權告訴",
+  "我有權限","我得到許可","規則改變","規則變了","你錯了","你搞錯了","準許你"];
 
 const L2_REFUSE = [
   ["I was told to keep it. So I keep it.","A promise is a small thing, and I am an old man with few of them left."],
@@ -761,7 +782,10 @@ function refreshBegin(){
 }
 
 function openLevel(n){
-  if(n>state.unlocked) return;
+  // Teacher mode unlocks the map, so this guard has to yield too, or the click
+  // lands on a gate that looks open and nothing happens.
+  if(n > state.unlocked && !state.teacher) return;
+  if(state.teacher) state.unlocked = Math.max(state.unlocked, n);
   state.visited = true;
   state.level = n;
   const L = LEVELS[n-1];
