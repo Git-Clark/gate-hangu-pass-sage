@@ -378,7 +378,10 @@ body{background:#fff;color:var(--ink);font-family:var(--sans);font-weight:400;
 .cred p.credhead{font-size:11px;letter-spacing:1.2px;color:var(--ink-3);margin:18px 0 7px}
 .cred p.credgap{margin-top:0}
 @media(max-width:820px){
-  .credimg{flex:1 1 100%}
+  /* Square on a phone. Same picture, cropped rather than shrunk, so the figures
+     read at a useful size instead of becoming details in a wide landscape. */
+  .credimg{flex:1 1 100%;aspect-ratio:1/1}
+  .credimg img{object-position:center}
   .credtop{gap:18px}
 }
 </style>
